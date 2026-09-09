@@ -66,6 +66,70 @@
       font-size: 1.05rem;
     }
 
+    /* 目的・説明・手順のカード */
+    .info-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .info-card h2 {
+      font-size: 1.2rem;
+      margin-top: 0;
+      margin-bottom: 0.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+    }
+
+    .info-card h2::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 1.1rem;
+      background-color: var(--primary-color);
+      margin-right: 0.6rem;
+      border-radius: 4px;
+    }
+
+    .info-card p {
+      margin-top: 0;
+      margin-bottom: 1.2rem;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      line-height: 1.7;
+    }
+
+    .info-steps {
+      margin: 0 0 1.2rem 0;
+      padding-left: 1.4rem;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .info-steps li {
+      margin-bottom: 0.5rem;
+      line-height: 1.6;
+    }
+
+    .info-notice {
+      background-color: var(--warn-bg);
+      color: var(--warn-text);
+      border-radius: var(--radius-md);
+      padding: 0.9rem 1.2rem;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .info-notice strong {
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
     .start-btn-container {
       text-align: center;
       margin-bottom: 2rem;
@@ -373,6 +437,27 @@
     <p class="subtitle">授業に参加するために必要な通信と端末の状況を確認します。</p>
   </header>
 
+  <!-- 目的・説明・手順 -->
+  <div class="info-card">
+    <h2>本サイトの目的・概要</h2>
+    <p>
+      このサイトは、Inspire Highをスムーズにご利用いただくために、お使いの端末やブラウザ、通信速度、必須ドメインへのアクセス状況などの動作環境を自動でチェックするためのサイトです。
+    </p>
+
+    <h2>ご利用の手順</h2>
+    <ol class="info-steps">
+      <li>下部の「チェックを開始する」ボタンを押してください。</li>
+      <li>自動で端末情報、通信速度、必須ドメインの通信判定が行われます。</li>
+      <li>「メディア（動画再生）確認」の動画を再生し、問題なく表示・再生されるかご確認ください。</li>
+      <li>判定結果で「NG」が表示された項目がある場合は、ページ最下部の「お問い合わせはこちら」に記載のある導線（WEBサポートデスク）よりお問い合わせください。</li>
+    </ol>
+
+    <div class="info-notice">
+      <strong>【ご注意点】</strong>
+      当サイトはネットワークや端末などの基礎的な動作環境をチェックするためのものです。実際にシステムにログインして動作するかどうかは、別途アカウント発行後にログインテストを行っていただく必要があります。
+    </div>
+  </div>
+
   <div class="start-btn-container">
     <button id="start-btn" onclick="runCheck()">チェックを開始する</button>
   </div>
@@ -457,7 +542,7 @@
 
     <p>
       NGが出た場合は、動作推奨環境に沿って設定許可を行っていただき、再度このチェックページでお試しください。<br>
-      それでも解決しない場合は、保存ファイルをにご準備いただき、下記窓口宛にファイルを添付の上お問い合わせをお願いします。
+      それでも解決しない場合は、保存ファイルをご準備いただき、下記窓口宛にファイルを添付の上お問い合わせをお願いします。
     </p>
 
     <div class="support-info">
@@ -554,7 +639,6 @@
       checkDeviceEnvironment();
     }
 
-    // 改善版: 5秒タイムアウトとAbortControllerを組み合わせた厳密な疎通判定
     async function checkEndpoint(item, index) {
       const statusTd = document.getElementById(`status-${index}`);
       const latencyTd = document.getElementById(`latency-${index}`);
@@ -562,7 +646,7 @@
       const start = performance.now();
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒で強制切断
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
 
       try {
         const cacheBuster = `?_t=${Date.now()}`;
@@ -580,7 +664,6 @@
         latencyTd.textContent = `${duration} ms`;
       } catch (err) {
         clearTimeout(timeoutId);
-        // ブロックやタイムアウト、通信エラーが発生した場合は確実にNG表示
         statusTd.innerHTML = `<span class="badge ng">NG</span>`;
         latencyTd.textContent = `-`;
       }
