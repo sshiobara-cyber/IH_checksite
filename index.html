@@ -478,19 +478,16 @@
         <tr>
           <th>項目</th>
           <th>お使いの環境</th>
-          <th>判定</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><strong>OS / 端末</strong></td>
           <td id="env-os">-</td>
-          <td id="status-os"><span class="badge pending">未確認</span></td>
         </tr>
         <tr>
           <td><strong>ブラウザ</strong></td>
           <td id="env-browser">-</td>
-          <td id="status-browser"><span class="badge pending">未確認</span></td>
         </tr>
       </tbody>
     </table>
@@ -500,7 +497,6 @@
     <h2>通信速度</h2>
     <div class="speed-test-zone">
       <div id="speed-display" class="speed-result">--<span class="speed-unit">Mbps</span></div>
-      <div id="status-speed" style="margin-top: 1rem;"><span class="badge pending">未確認</span></div>
     </div>
   </div>
 
@@ -581,12 +577,11 @@
     }
     fetchUserIP();
 
-   const TARGET_ENDPOINTS = [
+    const TARGET_ENDPOINTS = [
       { name: "api.inspirehigh.com", url: "https://api.inspirehigh.com/" },
       { name: "session.inspirehigh.com", url: "https://session.inspirehigh.com/" },
       { name: "session.api.inspirehigh.com", url: "https://session.api.inspirehigh.com/" },
       { name: "inspirehigh.studio.site", url: "https://inspirehigh.studio.site/" },
-      // { name: "support.inspirehigh.com", url: "https://support.inspirehigh.com/" }, ← この行を削除
       { name: "www.inspirehigh.com", url: "https://www.inspirehigh.com/" },
       { name: "action.api.inspirehigh.com", url: "https://action.api.inspirehigh.com/" },
       { name: "browser-intake-ap1-datadoghq.com", url: "https://browser-intake-ap1-datadoghq.com/" },
@@ -598,7 +593,6 @@
       const ua = navigator.userAgent;
       let os = "不明";
       let browser = "不明";
-      let isBrowserSupported = false;
 
       if (ua.includes("Win")) os = "Windows";
       else if (ua.includes("Mac") && !ua.includes("iPhone")) os = "macOS";
@@ -607,24 +601,14 @@
 
       if (ua.includes("Edg/")) {
         browser = "Edge";
-        isBrowserSupported = true;
       } else if (ua.includes("Chrome/") && !ua.includes("Edg/")) {
         browser = "Chrome";
-        isBrowserSupported = true;
       } else if (ua.includes("Safari/") && !ua.includes("Chrome/")) {
         browser = "Safari";
-        isBrowserSupported = true;
       }
 
       document.getElementById("env-os").textContent = os;
       document.getElementById("env-browser").textContent = browser;
-      document.getElementById("status-os").innerHTML = `<span class="badge ok">対応済</span>`;
-      
-      if (isBrowserSupported) {
-        document.getElementById("status-browser").innerHTML = `<span class="badge ok">推奨</span>`;
-      } else {
-        document.getElementById("status-browser").innerHTML = `<span class="badge warn">推奨外</span>`;
-      }
     }
 
     function initTable() {
@@ -671,7 +655,6 @@
 
     async function measureSpeed() {
       const display = document.getElementById("speed-display");
-      const statusDiv = document.getElementById("status-speed");
       display.innerHTML = `計測中...`;
 
       const startTime = performance.now();
@@ -729,15 +712,9 @@
         const formattedSpeed = finalMbps.toFixed(1);
         display.innerHTML = `${formattedSpeed}<span class="speed-unit">Mbps</span>`;
 
-        if (parseFloat(formattedSpeed) >= 10.0) {
-          statusDiv.innerHTML = `<span class="badge ok">快適</span>`;
-        } else {
-          statusDiv.innerHTML = `<span class="badge warn">速度低下</span>`;
-        }
       } catch (e) {
         console.error("Speed test error:", e);
         display.innerHTML = `失敗`;
-        statusDiv.innerHTML = `<span class="badge ng">エラー</span>`;
       }
     }
 
