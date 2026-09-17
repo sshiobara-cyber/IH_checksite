@@ -428,6 +428,81 @@
     .support-info a:hover {
       text-decoration: underline;
     }
+
+    /* レスポンシブ対応 */
+    @media (max-width: 1024px) {
+      body {
+        padding: 2rem 1.5rem 3rem 1.5rem;
+      }
+
+      .info-card, .card, .contact-card {
+        padding: 1.8rem;
+      }
+
+      .connection-info-card {
+        grid-template-columns: 120px 1fr;
+        gap: 0.6rem 1rem;
+      }
+
+      .status-table th, 
+      .status-table td {
+        padding: 1rem 0.4rem;
+        font-size: 0.9rem;
+      }
+
+      code {
+        word-break: break-all;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 1.5rem 1rem 2.5rem 1rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .info-card, .card, .contact-card {
+        padding: 1.25rem;
+      }
+
+      .connection-info-card {
+        grid-template-columns: 1fr;
+        gap: 0.2rem;
+        padding: 1rem;
+      }
+      
+      .connection-info-card .label {
+        margin-top: 0.6rem;
+      }
+      
+      .connection-info-card .label:first-child {
+        margin-top: 0;
+      }
+
+      .status-table th, 
+      .status-table td {
+        padding: 0.8rem 0.3rem;
+        font-size: 0.82rem;
+      }
+
+      code {
+        font-size: 0.75rem;
+      }
+
+      .video-confirm-area {
+        flex-direction: column;
+        gap: 0.8rem;
+        text-align: center;
+      }
+
+      button#start-btn {
+        width: 100%;
+        padding: 0.9rem 1rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -437,7 +512,6 @@
     <p class="subtitle">授業に参加するために必要な通信と端末の状況を確認します。</p>
   </header>
 
-  <!-- 目的・説明・手順 -->
   <div class="info-card">
     <h2>本サイトの目的・概要</h2>
     <p>
@@ -755,31 +829,64 @@
       }
     }
 
-    function captureScreen() {
+    async function captureScreen() {
       const btn = document.getElementById("save-btn");
       const originalText = btn.textContent;
       btn.textContent = "保存中...";
       btn.disabled = true;
 
-      html2canvas(document.body, {
-        scale: 2,
-        useCORS: true,
-        logging: false
-      }).then(canvas => {
-        const link = document.createElement('a');
+      try {
+        const canvas = await html2canvas(document.body, {
+          scale: 1.5,
+          useCORS: true,
+          logging: false
+        });
+
         const now = new Date();
         const dateStr = now.toISOString().slice(0, 10);
-        link.download = `inspire-high-check-${dateStr}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        const fileName = `inspire-high-check-${dateStr}.png`;
+        const imageData = canvas.toDataURL('image/png');
 
-        btn.textContent = originalText;
-        btn.disabled = false;
-      }).catch(err => {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        if (isMobile) {
+          const newWindow = window.open();
+          if (newWindow) {
+            newWindow.document.write(`
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>チェック結果画像</title>
+                <style>
+                  body { margin: 0; padding: 20px; text-align: center; font-family: sans-serif; background: #f9fafb; color: #333; }
+                  p { margin-bottom: 15px; font-size: 14px; line-height: 1.5; font-weight: bold; }
+                  img { max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+                </style>
+              </head>
+              <body>
+                <p>画像を長押し（または副クリック）して<br>「写真に追加」や「画像を保存」を選択してください。</p>
+                <img src="${imageData}" alt="チェック結果">
+              </body>
+              </html>
+            `);
+            newWindow.document.close();
+          } else {
+            alert("ポップアップがブロックされました。ブラウザのポップアップ設定をご確認ください。");
+          }
+        } else {
+          const link = document.createElement('a');
+          link.download = fileName;
+          link.href = imageData;
+          link.click();
+        }
+      } catch (err) {
+        console.error(err);
         alert("画像の保存に失敗しました。手動で画面のスクリーンショットをお取りください。");
+      } finally {
         btn.textContent = originalText;
         btn.disabled = false;
-      });
+      }
     }
 
     initTable();
